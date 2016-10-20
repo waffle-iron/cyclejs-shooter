@@ -1,70 +1,29 @@
+const { div } = require('@cycle/dom')
 const { test } = require('ava')
 const mock = require('mock-require')
-const { div } = require('@cycle/dom')
 
-const playerStub = (side, hiding) => `${side}, ${hiding}`
-mock('./player', playerStub)
-
-const uiFromState = require('.')
-
-const divData = {
-  attrs: {tabindex: 0},
-  style: {fontFamily: 'monospace', textAlign: 'center'}
+const state = {
+  leftHiding: Symbol(),
+  rightHiding: Symbol()
 }
-const barrier = '='
 
-test('left hiding, right hiding', t => {
+function arenaStub (leftHiding, rightHiding) { return {leftHiding, rightHiding} }
+mock('./arena', arenaStub)
+
+const uiFromState = require('./index')
+
+test(t => {
   const expected = div(
-    divData,
+    { style: { textAlign: 'center' } },
     [
-      'left, true',
-      barrier,
-      'right, true'
+      {
+        leftHiding: state.leftHiding,
+        rightHiding: state.rightHiding
+      }
     ]
   )
-  const actual = uiFromState({leftHiding: true, rightHiding: true})
 
-  t.deepEqual(actual, expected)
-})
-
-test('left hiding, right not hiding', t => {
-  const expected = div(
-    divData,
-    [
-      'left, true',
-      barrier,
-      'right, false'
-    ]
-  )
-  const actual = uiFromState({leftHiding: true, rightHiding: false})
-
-  t.deepEqual(actual, expected)
-})
-
-test('left not hiding, right hiding', t => {
-  const expected = div(
-    divData,
-    [
-      'left, false',
-      barrier,
-      'right, true'
-    ]
-  )
-  const actual = uiFromState({leftHiding: false, rightHiding: true})
-
-  t.deepEqual(actual, expected)
-})
-
-test('left not hiding, right not hiding', t => {
-  const expected = div(
-    divData,
-    [
-      'left, false',
-      barrier,
-      'right, false'
-    ]
-  )
-  const actual = uiFromState({leftHiding: false, rightHiding: false})
+  const actual = uiFromState(state)
 
   t.deepEqual(actual, expected)
 })
