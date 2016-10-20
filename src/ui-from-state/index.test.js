@@ -1,29 +1,53 @@
-const { div } = require('@cycle/dom')
+const { div, span } = require('@cycle/dom')
 const { test } = require('ava')
 const mock = require('mock-require')
 
-const state = {
+const playingState = {
   leftHiding: Symbol(),
-  rightHiding: Symbol()
+  rightHiding: Symbol(),
+  winner: null
 }
 
-function arenaStub (leftHiding, rightHiding) { return {leftHiding, rightHiding} }
+const winningState = {
+  leftHiding: Symbol(),
+  rightHiding: Symbol(),
+  winner: 'LEFT_PLAYER'
+}
+
+function arenaStub (leftHiding, rightHiding) {
+  return {leftHiding, rightHiding}
+}
 mock('./arena', arenaStub)
 
 const uiFromState = require('./index')
 
-test(t => {
+test('playing state', t => {
   const expected = div(
     { style: { textAlign: 'center' } },
     [
       {
-        leftHiding: state.leftHiding,
-        rightHiding: state.rightHiding
+        leftHiding: playingState.leftHiding,
+        rightHiding: playingState.rightHiding
       }
     ]
   )
 
-  const actual = uiFromState(state)
+  const actual = uiFromState(playingState)
+
+  t.deepEqual(actual, expected)
+})
+
+test('winning state', t => {
+  const expected = div(
+    { style: { textAlign: 'center' } },
+    [
+      span(
+        'Left player won!'
+      )
+    ]
+  )
+
+  const actual = uiFromState(winningState)
 
   t.deepEqual(actual, expected)
 })
